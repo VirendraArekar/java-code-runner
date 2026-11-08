@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Multi-Database Inspector</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  
+  <!-- Google Material Fonts & Icons & JetBrains Mono (Official IntelliJ IDEA Font) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Roboto+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons|Material+Icons+Outlined|Material+Icons+Round" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="theme-light-spring">
+
+  <!-- Animated Living Light Nature Ambient Canvas (Java Cup, Spring Boot Leaf, Hibernate, JPA) -->
+  <canvas id="nature-canvas"></canvas>
+
+  <div class="app-layout">
+    
+    <!-- Material-UI Spring Boot Glassmorphic Main Paper Card -->
+    <div class="mui-paper">
+      
+      <!-- Top App Bar / Header -->
+      <header class="mui-appbar">
+        <div class="header-left">
+          <div class="brand-badges-group">
+            <span class="java-badge" id="app-java-badge" title="Oracle JDK 25 LTS Runtime">☕ Java 25</span>
+            <span class="boot-badge" id="app-boot-badge" title="Spring Boot 4.0 Application Framework">🍃 Spring Boot 4</span>
+          </div>
+
+        </div>
+
+        <div class="header-right">
+          <!-- Mode Navigation Pills -->
+          <div class="mode-nav-group" role="tablist">
+            <button class="mode-pill" id="tab-java" type="button" role="tab" title="Core Java 25 Scratchpad (Single File)">
+              <span class="material-icons pill-icon">coffee</span>
+              Java Scratchpad
+            </button>
+            <button class="mode-pill active" id="tab-boot" type="button" role="tab" title="Spring Boot 4 Full Project Directory Explorer">
+              <span class="material-icons pill-icon">eco</span>
+              Spring Boot Project
+            </button>
+            <button class="mode-pill" id="tab-db" type="button" role="tab" title="Multi-Database Data Inspector (MySQL, Postgres, MSSQL, Mongo)">
+              <span class="material-icons pill-icon">storage</span>
+              Database Explorer
+            </button>
+          </div>
+
+          <span id="status-chip" class="mui-chip mui-chip-status" style="display: none;"></span>
+
+          <!-- Animated Top Right Complexity Analyzer Button -->
+          <button class="mui-btn-complexity" id="complexity-chip" type="button" title="Time &amp; Space Complexity Analyzer (Click to evaluate)">
+            <span class="material-icons complexity-icon">query_stats</span>
+            <span id="complexity-chip-text">O(1)</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- Sub-Bar / Action Control Ribbon -->
+      <section class="action-ribbon">
+        <div class="ribbon-left">
+          <!-- Primary Execution Button -->
+          <button class="mui-btn mui-btn-run boot-theme" id="btn-run" title="Execute Spring Boot App or Code (Cmd/Ctrl + Enter)">
+            <span class="material-icons btn-icon" id="btn-run-icon">play_arrow</span>
+            <span id="btn-run-label">Run Spring Boot 4</span>
+          </button>
+
+          <!-- Save Button -->
+          <button class="mui-btn mui-btn-contained" id="btn-save" title="Save Active File to Disk (Cmd/Ctrl + S)">
+            <span class="material-icons btn-icon">save</span>
+            Save File
+          </button>
+
+          <!-- Quick File / Folder Actions for Spring Boot Directory -->
+          <div class="boot-dir-actions" id="boot-dir-actions">
+            <button class="mui-btn mui-btn-outlined" id="btn-create-file" title="Create New File in Spring Boot Project">
+              <span class="material-icons btn-icon" style="color: #059669;">note_add</span>
+              + File
+            </button>
+            <button class="mui-btn mui-btn-outlined" id="btn-create-folder" title="Create New Folder in Spring Boot Project">
+              <span class="material-icons btn-icon" style="color: #ea580c;">create_new_folder</span>
+              + Folder
+            </button>
+            <button class="mui-btn mui-btn-outlined" id="btn-refresh-tree" title="Reload Project Directory Tree">
+              <span class="material-icons btn-icon" style="color: #0284c7;">refresh</span>
+              Refresh Tree
+            </button>
+            <button class="mui-btn mui-btn-outlined" id="btn-boot-default-code" title="Load / Restore Spring Boot 4 Default Starter Code">
+              <span class="material-icons btn-icon" style="color: #10b981;">restore_page</span>
+              Default Code
+            </button>
+            <button class="mui-btn mui-btn-outlined" id="btn-download-project-zip" title="Download Complete Spring Boot Bootstrap Project as ZIP">
+              <span class="material-icons btn-icon" style="color: #6366f1;">download</span>
+              Download ZIP
+            </button>
+          </div>
+
+          <!-- Quick Actions for Java 25 Scratchpad Mode -->
+          <div class="scratch-dir-actions" id="scratch-dir-actions" style="display: none;">
+            <button class="mui-btn mui-btn-outlined" id="btn-scratch-templates" title="Load Java 25 Scratchpad Starter Templates">
+              <span class="material-icons btn-icon" style="color: #ea580c;">library_books</span>
+              Templates
+            </button>
+            <button class="mui-btn mui-btn-outlined" id="btn-scratch-reset" title="Reset Scratchpad to Default Template">
+              <span class="material-icons btn-icon" style="color: #64748b;">restart_alt</span>
+              Reset
+            </button>
+          </div>
+
+          <!-- Time Complexity Action -->
+          <button class="mui-btn mui-btn-outlined" id="btn-complexity" title="Analyze Algorithmic Big-O Complexity">
+            <span class="material-icons btn-icon" style="color: #7c3aed;">query_stats</span>
+            Complexity
+          </button>
+        </div>
+
+        <div class="ribbon-right">
+          <!-- Maximize Code Area / Minimize Console -->
+          <button class="mui-btn mui-btn-outlined" id="btn-toggle-console" title="Minimize Console Area (Maximize Code Area)">
+            <span class="material-icons btn-icon" style="color: #059669;" id="btn-toggle-console-icon">open_in_full</span>
+            <span id="btn-toggle-console-label">Maximize Code Area</span>
+          </button>
+
+          <!-- Toggle Project Explorer Sidebar -->
+          <button class="mui-btn mui-btn-outlined" id="btn-toggle-sidebar" title="Toggle Spring Boot Explorer Sidebar">
+            <span class="material-icons btn-icon" style="color: #059669;">account_tree</span>
+            <span id="btn-sidebar-label">Project Tree</span>
+          </button>
+          <button class="mui-btn mui-btn-outlined" id="btn-clear-code" title="Clear Code in Editor">
+            <span class="material-icons btn-icon" style="color: #ef4444;">delete_outline</span>
+            Clear Code
+          </button>
+          <button class="mui-btn mui-btn-outlined" id="btn-clear-console" title="Clear Console &amp; Results">
+            <span class="material-icons btn-icon" style="color: #d97706;">cleaning_services</span>
+            Clear Console
+          </button>
+        </div>
+      </section>
+
+      <!-- Main Dual-Pane Backend Workspace (No UI Review Pane as requested) -->
+      <main class="workspace-grid" id="workspace-grid">
+        
+        <!-- Left Panel: Spring Boot Directory Explorer & VS Code Editor -->
+        <section class="panel editor-panel">
+          
+          <div class="editor-workbench-layout" id="editor-workbench-layout">
+            
+            <!-- Spring Boot Project Explorer Sidebar -->
+            <aside class="project-explorer-sidebar" id="project-explorer-sidebar">
+              <div class="explorer-header">
+                <div class="explorer-title">
+                  <span class="material-icons explorer-icon">folder_special</span>
+                  <span>SPRING BOOT APP</span>
+                </div>
+                <div class="explorer-actions">
+                  <button class="icon-mini-btn" id="btn-tree-add-file" title="Create File in Directory">
+                    <span class="material-icons" style="font-size: 15px; color: #059669;">note_add</span>
+                  </button>
+                  <button class="icon-mini-btn" id="btn-tree-add-folder" title="Create Folder in Directory">
+                    <span class="material-icons" style="font-size: 15px; color: #ea580c;">create_new_folder</span>
+                  </button>
+                  <button class="icon-mini-btn" id="btn-tree-refresh" title="Reload Directory">
+                    <span class="material-icons" style="font-size: 15px;">refresh</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Filter Search Input -->
+              <div class="explorer-search-box">
+                <span class="material-icons search-icon">search</span>
+                <input type="text" id="tree-search-input" placeholder="Search files / classes..." spellcheck="false">
+              </div>
+
+              <!-- Interactive File & Directory Tree -->
+              <div class="boot-file-tree" id="boot-file-tree" role="tree">
+                <div class="tree-loading">
+                  <span class="material-icons spin-anim">sync</span>
+                  <span>Scanning project directory...</span>
+                </div>
+              </div>
+            </aside>
+
+            <!-- IntelliJ IDEA Interactive Editor Window & Feature Toolbar -->
+            <div class="intellij-window-wrapper vscode-window-wrapper" id="intellij-window-wrapper">
+              
+              <!-- 1. IntelliJ Top Navigation & Run/Debug Action Bar (JetBrains Style) -->
+              <div class="intellij-nav-bar" id="intellij-nav-bar">
+                <div class="intellij-nav-left">
+                  <!-- Run Configuration Dropdown -->
+                  <div class="intellij-run-config" id="ij-run-config-btn" title="Active Run Configuration (Click to view)">
+                    <span class="ij-icon-spring">🍃</span>
+                    <span class="ij-config-name" id="ij-config-name">DemoApplication</span>
+                    <span class="material-icons ij-dropdown-arrow">arrow_drop_down</span>
+                  </div>
+                  <!-- IntelliJ Build / Run / Debug Toolbar Buttons -->
+                  <button class="ij-action-btn ij-btn-build" id="btn-ij-build" title="Build Spring Boot Project (Ctrl+F9)">
+                    <span class="material-icons">build</span>
+                  </button>
+                  <button class="ij-action-btn ij-btn-run" id="btn-ij-run" title="Run 'DemoApplication' (Shift+F10)">
+                    <span class="material-icons">play_arrow</span>
+                  </button>
+                  <button class="ij-action-btn ij-btn-debug" id="btn-ij-debug" title="Debug 'DemoApplication' (Shift+F9)">
+                    <span class="material-icons">bug_report</span>
+                  </button>
+                  <button class="ij-action-btn ij-btn-stop" id="btn-ij-stop" title="Stop Application">
+                    <span class="material-icons">stop</span>
+                  </button>
+                </div>
+
+                <!-- IntelliJ Quick Actions & Refactoring Tools -->
+                <div class="intellij-nav-right">
+                  <button class="ij-tool-pill" id="btn-ij-reformat" title="Reformat Code (Ctrl+Alt+L)">
+                    <span class="material-icons">format_align_left</span>
+                    <span>Reformat</span>
+                  </button>
+                  <button class="ij-tool-pill" id="btn-ij-generate" title="Generate Code (Alt+Insert): Endpoints, Constructors, Getters...">
+                    <span class="material-icons">auto_fix_high</span>
+                    <span>Generate...</span>
+                  </button>
+                  <button class="ij-tool-pill" id="btn-ij-find" title="Find in File (Ctrl+F)">
+                    <span class="material-icons">search</span>
+                    <span>Find</span>
+                  </button>
+                  <button class="ij-tool-pill" id="btn-ij-autocomplete" title="Code Completion (Ctrl+Space)">
+                    <span class="material-icons">bolt</span>
+                    <span>Complete</span>
+                  </button>
+                  <!-- IntelliJ Theme Switcher: Light / Darcula -->
+                  <button class="ij-tool-pill ij-theme-toggle" id="btn-ij-theme-toggle" title="Toggle IntelliJ Theme (Light / Darcula)">
+                    <span class="material-icons" id="ij-theme-icon">dark_mode</span>
+                    <span id="ij-theme-label">Darcula</span>
+                  </button>
+                </div>
+              </div>
+
+              <div class="intellij-window vscode-window" id="intellij-window">
+                
+                <!-- 2. IntelliJ Editor Tab Bar -->
+                <div class="intellij-tab-bar vscode-tab-bar">
+                  <div class="intellij-tab vscode-tab active" id="vscode-active-tab">
+                    <span class="intellij-tab-icon vscode-tab-icon" id="vscode-active-tab-icon">
+                      <span class="ij-class-badge" id="ij-class-badge">C</span>
+                    </span>
+                    <span id="vscode-active-tab-title">DemoApplication.java</span>
+                    <span class="vscode-tab-dirty" id="vscode-tab-dirty" style="display: none;">&bull;</span>
+                    <span class="intellij-tab-close vscode-tab-close" id="btn-tab-close" title="Close File">✕</span>
+                  </div>
+                  
+                  <div class="intellij-tab-actions vscode-tab-actions">
+                    <button class="tab-action-pill" id="btn-quick-new-file" title="Create New Spring Component / File">
+                      <span class="material-icons" style="font-size: 14px; color: #059669;">add_box</span>
+                      <span>+ Create Code</span>
+                    </button>
+                    <button class="tab-action-pill" id="btn-tab-toggle-console" title="Minimize Console to expand code area">
+                      <span class="material-icons" style="font-size: 14px; color: #0284c7;" id="tab-toggle-console-icon">fullscreen</span>
+                      <span id="tab-toggle-console-label">Maximize Code</span>
+                    </button>
+                    <span class="badge-lang" id="editor-lang-badge">JAVA 25</span>
+                    <span class="badge-framework" id="editor-framework-badge">SPRING BOOT 4</span>
+                  </div>
+                </div>
+
+                <!-- 3. IntelliJ In-Editor Find Bar (Ctrl+F) -->
+                <div class="intellij-find-bar" id="intellij-find-bar" style="display: none;">
+                  <span class="material-icons find-search-icon">search</span>
+                  <input type="text" id="ij-find-input" placeholder="Find in file (press Enter for next)..." spellcheck="false">
+                  <span class="find-count" id="ij-find-count">0 of 0</span>
+                  <button class="find-btn" id="btn-find-prev" title="Previous Match (Shift+Enter)">▲</button>
+                  <button class="find-btn" id="btn-find-next" title="Next Match (Enter)">▼</button>
+                  <button class="find-close" id="btn-find-close" title="Close (Esc)">✕</button>
+                </div>
+
+                <!-- 4. IntelliJ Breadcrumbs Bar with JetBrains Icons -->
+                <div class="intellij-breadcrumbs vscode-breadcrumbs" id="vscode-breadcrumbs">
+                  <span class="ij-crumb-item ij-crumb-root"><span class="ij-crumb-icon">📁</span><span class="crumb-root" id="crumb-root">springboot_app</span></span>
+                  <span class="crumb-sep">&gt;</span>
+                  <span class="ij-crumb-item ij-crumb-pkg"><span class="ij-crumb-icon">📦</span><span class="crumb-folder" id="crumb-folder">src/main/java/com/example/demo</span></span>
+                  <span class="crumb-sep">&gt;</span>
+                  <span class="ij-crumb-item ij-crumb-file"><span class="ij-crumb-icon">☕</span><span class="crumb-file" id="crumb-file">DemoApplication.java</span></span>
+                  <span class="crumb-sep">&gt;</span>
+                  <span class="ij-crumb-item ij-crumb-method" id="ij-crumb-method"><span class="ij-crumb-icon">ƒ</span><span>main(String[] args)</span></span>
+                </div>
+
+                <!-- 5. IntelliJ Editor Body (Gutter + Code Area + Inspection Rail) -->
+                <div class="intellij-editor-body vscode-editor-body" id="vscode-editor-body">
+                  <!-- IntelliJ Feature Gutter (Run ▶, Spring 🍃, Breakpoint ●, Line #, Fold ▼) -->
+                  <div class="intellij-gutter vscode-gutter" id="vscode-gutter">
+                    <!-- Dynamically rendered with Run ▶ and Spring 🍃 buttons -->
+                  </div>
+
+                  <!-- Code Area: Highlight layer underneath, Transparent textarea on top -->
+                  <div class="intellij-code-area vscode-code-area">
+                    <pre class="intellij-highlight-layer vscode-highlight-layer" id="vscode-highlight-layer" aria-hidden="true"><code id="vscode-code-highlight"><span class="tok-decl">package</span> com.example.demo;
+
+<span class="tok-decl">import</span> org.springframework.boot.SpringApplication;
+<span class="tok-decl">import</span> org.springframework.boot.autoconfigure.SpringBootApplication;
+
+<span class="tok-annotation">@SpringBootApplication</span>
+<span class="tok-decl">public</span> <span class="tok-decl">class</span> DemoApplication {
+	<span class="tok-decl">public</span> <span class="tok-decl">static</span> <span class="tok-type">void</span> <span class="tok-function">main</span>(<span class="tok-type">String</span>[] args) {
+		SpringApplication.<span class="tok-function">run</span>(DemoApplication.<span class="tok-decl">class</span>, args);
+	}
+}
+</code></pre>
+                    <textarea id="code-editor" class="intellij-textarea vscode-textarea" spellcheck="false" autocomplete="off" placeholder="// Write custom Java 25 or Spring Boot 4 code here...">package com.example.demo;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class DemoApplication {
+	public static void main(String[] args) {
+		SpringApplication.run(DemoApplication.class, args);
+	}
+}
+</textarea>
+
+                    <!-- Floating IntelliJ Autocomplete / IntelliSense Popup -->
+                    <div class="intellij-completion-popup" id="intellij-completion-popup" style="display: none;">
+                      <div class="completion-header">
+                        <span class="completion-title">💡 IntelliJ Code Completion</span>
+                        <span class="completion-hint">Tab / Enter to insert</span>
+                      </div>
+                      <div class="completion-list" id="completion-list">
+                        <!-- Autocomplete suggestions injected by JS -->
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- IntelliJ Error Stripe / Inspection Gutter (Right Rail) -->
+                  <div class="intellij-inspection-rail" id="intellij-inspection-rail" title="IntelliJ Code Inspection: All checks passed">
+                    <div class="inspection-status-icon" id="inspection-status-icon" title="No errors found in file">
+                      <span class="material-icons status-ok-check">check</span>
+                    </div>
+                    <div class="inspection-track" id="inspection-track"></div>
+                  </div>
+                </div>
+
+                <!-- 6. IntelliJ Status Bar -->
+                <div class="intellij-status-bar vscode-status-bar" id="vscode-status-bar">
+                  <div class="intellij-status-left vscode-status-left">
+                    <span class="status-item" id="vscode-cursor-pos">Ln 1, Col 1</span>
+                    <span class="statusbar-sep">&bull;</span>
+                    <span class="status-item" id="vscode-file-stats">0 lines, 0 chars</span>
+                    <span class="statusbar-sep statusbar-sep-optional">&bull;</span>
+                    <span class="status-item status-item-optional">4 spaces</span>
+                    <span class="statusbar-sep statusbar-sep-optional">&bull;</span>
+                    <span class="status-item status-item-optional ij-status-git" title="Git VCS Repository Branch">
+                      <span class="material-icons status-icon" style="color: #f97316;">commit</span>
+                      <span>main</span>
+                    </span>
+                  </div>
+                  <div class="intellij-status-right vscode-status-right">
+                    <span class="status-item status-lang-mode" id="vscode-lang-mode">Java 25 (LTS)</span>
+                    <span class="statusbar-sep statusbar-sep-optional">&bull;</span>
+                    <span class="status-item status-item-optional">UTF-8</span>
+                    <span class="statusbar-sep statusbar-sep-optional">&bull;</span>
+                    <span class="status-item status-item-optional">LF</span>
+                    <span class="statusbar-sep">&bull;</span>
+                    <span class="status-item ij-sdk-status" title="JDK Runtime Engine">
+                      <span class="runtime-status-dot online"></span>
+                      <span id="server-status-text">Oracle OpenJDK 25.0.4.1</span>
+                    </span>
+                    <span class="statusbar-sep">&bull;</span>
+                    <span class="status-item ij-inspection-summary" id="ij-inspection-summary" title="Inspection Profile: IntelliJ Default">
+                      <span class="material-icons status-icon" style="color: #10b981;">verified</span>
+                      <span>No errors</span>
+                    </span>
+                  </div>
+                </div>
+
+              </div>
+
+            </div>
+
+          </div>
+
+        </section>
+
+        <!-- Right Panel: Backend Output Hub (Terminal Console + Multi-Database Inspector) -->
+        <section class="panel output-panel" id="output-panel">
+          
+          <!-- Sleek Vertical Collapsed Rail (Shown when console is minimized) -->
+          <div class="console-collapsed-rail" id="console-collapsed-rail" style="display: none;" title="Click to Expand Console Area">
+            <button class="rail-expand-btn" id="btn-rail-expand" title="Expand Console Area">
+              <span class="material-icons" style="font-size: 18px;">first_page</span>
+            </button>
+            <div class="rail-vertical-label">
+              <span class="rail-dot online"></span>
+              <span>TERMINAL CONSOLE</span>
+            </div>
+          </div>
+
+          <!-- Output Navigation Tabs -->
+          <div class="output-tabbar" id="output-tabbar">
+            <div class="output-tabs-group" role="tablist">
+              <button class="output-tab-btn active" id="tab-db-inspector" type="button" role="tab">
+                <span class="material-icons output-tab-icon" id="output-tab-icon">terminal</span>
+                <span id="output-tab-title">Terminal Console</span>
+              </button>
+            </div>
+
+            <div class="output-tabbar-actions">
+              <button class="icon-action-btn" id="btn-copy-output" title="Copy Output to Clipboard">
+                <span class="material-icons" style="font-size: 16px;">content_copy</span>
+              </button>
+              <button class="icon-action-btn" id="btn-download-output" title="Download Output Log">
+                <span class="material-icons" style="font-size: 16px;">download</span>
+              </button>
+              <button class="icon-action-btn" id="btn-minimize-console" title="Minimize Console Area">
+                <span class="material-icons" style="font-size: 16px; color: #64748b;">last_page</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- View 1: Terminal Execution Console -->
+          <div class="output-view active" id="view-console">
+            <!-- Complexity Analysis Banner -->
+            <div class="complexity-card-banner" id="complexity-banner" style="display: none;">
+              <div class="complexity-card-left">
+                <span class="complexity-big-badge" id="complexity-badge-text">O(1)</span>
+                <div>
+                  <div style="font-weight: 700; font-size: 13px;" id="complexity-type-text">Constant Time</div>
+                  <div class="complexity-meta">Space: <strong id="complexity-space-text">O(1)</strong></div>
+                </div>
+              </div>
+              <div class="complexity-card-right" id="complexity-explanation-text">Algorithm executes in constant time with negligible memory allocation.</div>
+            </div>
+
+            <!-- Terminal Output Stream -->
+            <div class="terminal-container" id="terminal-output">
+              <div class="terminal-banner">
+                <pre class="boot-ascii-banner">
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+ :: Spring Boot 4 ::                 (v4.0.0-GA)
+ :: Java 25 (LTS) Runtime ::         (Oracle JDK 25.0.4.1)
+                </pre>
+              </div>
+              <div class="terminal-log-stream" id="log-stream">
+                <div class="log-entry log-system">
+                  <span class="log-time">[INIT]</span>
+                  <span class="log-tag">SYSTEM</span>
+                  <span class="log-msg">Java 25 LTS &amp; Spring Boot 4 Runner initialized.</span>
+                </div>
+                <div class="log-entry log-success">
+                  <span class="log-time">[READY]</span>
+                  <span class="log-tag tag-ready">COMPILER</span>
+                  <span class="log-msg">Oracle JDK 25.0.4.1 runtime connected. Virtual Threads active.</span>
+                </div>
+                <div class="log-entry log-info">
+                  <span class="log-time">[READY]</span>
+                  <span class="log-tag tag-tree">EXPLORER</span>
+                  <span class="log-msg">Spring Boot Project Explorer loaded (`jdk/springboot_app`). Full directory control enabled.</span>
+                </div>
+                <div class="log-entry log-info">
+                  <span class="log-time">[READY]</span>
+                  <span class="log-tag tag-db">DATABASE</span>
+                  <span class="log-msg">Multi-Database Inspector ready (MySQL 🐬, PostgreSQL 🐘, MSSQL 🏢, MongoDB 🍃).</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- View 2: Multi-Database Inspector with Database Toggles & Editable Connections -->
+          <div class="output-view" id="view-db-inspector">
+            
+            <!-- Database Engine Selector Switcher Bar -->
+            <div class="db-switcher-bar">
+              <div class="db-switcher-label">
+                <span class="material-icons" style="font-size: 17px; color: #059669;">storage</span>
+                Database Engine:
+              </div>
+
+              <!-- 4 Database Toggles (MySQL, Postgres, MSSQL, MongoDB) -->
+              <div class="db-toggle-group" role="tablist">
+                <button class="db-toggle-btn active" id="db-btn-mysql" type="button" data-db="mysql" title="MySQL Database">
+                  <span class="db-icon">🐬</span>
+                  <span class="db-title">MySQL</span>
+                  <span class="db-port-badge" id="badge-port-mysql">3306</span>
+                </button>
+
+                <button class="db-toggle-btn" id="db-btn-postgres" type="button" data-db="postgres" title="PostgreSQL Database">
+                  <span class="db-icon">🐘</span>
+                  <span class="db-title">PostgreSQL</span>
+                  <span class="db-port-badge" id="badge-port-postgres">5432</span>
+                </button>
+
+                <button class="db-toggle-btn" id="db-btn-mssql" type="button" data-db="mssql" title="Microsoft SQL Server Database">
+                  <span class="db-icon">🏢</span>
+                  <span class="db-title">MSSQL</span>
+                  <span class="db-port-badge" id="badge-port-mssql">1433</span>
+                </button>
+
+                <button class="db-toggle-btn" id="db-btn-mongodb" type="button" data-db="mongodb" title="MongoDB Document Store">
+                  <span class="db-icon">🍃</span>
+                  <span class="db-title">MongoDB</span>
+                  <span class="db-port-badge" id="badge-port-mongodb">27017</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Database Connection Bar with Live Connection Status -->
+            <div class="db-connection-bar">
+              <div class="db-connection-info">
+                <span class="conn-dot offline" id="conn-status-dot"></span>
+                <span class="conn-text" id="conn-display-text">Not Connected: mysql://root@127.0.0.1:3306 (Database service not started)</span>
+                <span class="badge-conn-state badge-conn-offline" id="conn-state-badge">DISCONNECTED</span>
+              </div>
+              <div class="db-connection-actions">
+                <button class="mui-btn mui-btn-outlined btn-xs" id="btn-toggle-conn-settings" title="Edit Connection Data (Host, Port, Database, User, Password)">
+                  <span class="material-icons" style="font-size: 14px; color: #059669;">tune</span>
+                  Edit Connection
+                </button>
+                <button class="mui-btn mui-btn-outlined btn-xs" id="btn-test-connection" title="Ping and Test Connection">
+                  <span class="material-icons" style="font-size: 14px; color: #10b981;">cable</span>
+                  Test Connection
+                </button>
+              </div>
+            </div>
+
+            <!-- Expandable Manual Connection Configuration Drawer / Panel -->
+            <div class="db-connection-panel" id="db-connection-panel" style="display: none;">
+              <div class="conn-panel-header">
+                <div class="conn-panel-title">
+                  <span class="material-icons" style="font-size: 16px; color: #059669;">settings_ethernet</span>
+                  <span id="conn-panel-title-text">Manual Connection Settings (MySQL 8.0)</span>
+                </div>
+                <button class="icon-action-btn" id="btn-close-conn-panel" title="Close Panel">
+                  <span class="material-icons" style="font-size: 16px;">close</span>
+                </button>
+              </div>
+
+              <!-- Live Database Banner -->
+              <div class="conn-live-banner">
+                <span class="material-icons" style="font-size: 15px; color: #059669;">verified</span>
+                <span>Direct real-time connection to your <strong>actual local database</strong> running on your machine. All queries and schema updates execute directly on the live database server.</span>
+              </div>
+
+              <div class="conn-form-grid">
+                <div class="conn-form-group">
+                  <label for="conn-host">Host / Server IP</label>
+                  <input type="text" id="conn-host" value="localhost" placeholder="localhost or 127.0.0.1">
+                </div>
+                <div class="conn-form-group">
+                  <label for="conn-port">Port</label>
+                  <input type="number" id="conn-port" value="3306" placeholder="3306">
+                </div>
+                <div class="conn-form-group">
+                  <label for="conn-database">Database / Schema Name</label>
+                  <input type="text" id="conn-database" value="production_db" placeholder="Database Name">
+                </div>
+                <div class="conn-form-group">
+                  <label for="conn-user">Username</label>
+                  <input type="text" id="conn-user" value="root" placeholder="Username">
+                </div>
+                <div class="conn-form-group">
+                  <label for="conn-password">Password</label>
+                  <input type="password" id="conn-password" placeholder="••••••••">
+                </div>
+                <div class="conn-form-group full-width">
+                  <label for="conn-uri">Connection String / URI</label>
+                  <input type="text" id="conn-uri" value="mysql://root@localhost:3306/production_db" placeholder="mysql://user:pass@host:port/db">
+                </div>
+              </div>
+
+              <div class="conn-panel-footer">
+                <button class="mui-btn mui-btn-contained btn-xs" id="btn-save-conn">
+                  <span class="material-icons" style="font-size: 14px;">save</span>
+                  Save &amp; Apply Connection
+                </button>
+                <button class="mui-btn mui-btn-outlined btn-xs" id="btn-reset-conn">
+                  <span class="material-icons" style="font-size: 14px;">restore</span>
+                  Reset Defaults
+                </button>
+              </div>
+            </div>
+
+            <!-- Database Quick Schema Bar & Query Toolbar -->
+            <div class="db-schema-toolbar">
+              <div class="db-toolbar-heading">
+                <span class="material-icons" style="font-size: 15px; color: #059669;">folder_open</span>
+                <span>Databases:</span>
+              </div>
+              <div class="db-tables-list" id="db-tables-list">
+                <!-- Dynamically populated databases after successful connection -->
+              </div>
+              <div class="db-quick-actions">
+                <button class="mui-btn mui-btn-contained btn-xs" id="btn-quick-select" title="Populate sample query into editor without running">
+                  <span class="material-icons" style="font-size: 14px;">flash_on</span>
+                  Sample Query
+                </button>
+                <button class="mui-btn mui-btn-outlined btn-xs" id="btn-refresh-db" title="Refresh Connection and Databases">
+                  <span class="material-icons" style="font-size: 14px;">refresh</span>
+                  Refresh
+                </button>
+              </div>
+            </div>
+
+            <!-- Database Write Query Editor Console (SQL & NoSQL) -->
+            <div class="db-query-editor-card" id="db-query-editor-card">
+              <div class="db-query-header">
+                <div class="db-query-title-row">
+                  <span class="db-query-icon">⌨️</span>
+                  <span class="db-query-heading">SQL Query Console</span>
+                  <span class="db-query-engine-pill" id="db-query-engine-pill">🐬 MySQL 8.0</span>
+                  <span class="db-query-shortcut-hint">Ctrl+Enter to Execute</span>
+                </div>
+                <div class="db-query-actions">
+                  <button class="mui-btn mui-btn-outlined btn-xs" id="btn-db-format-sql" type="button" title="Format Query (Ctrl+Alt+L)">
+                    <span class="material-icons" style="font-size: 14px;">format_align_left</span>
+                    <span>Format</span>
+                  </button>
+                  <button class="mui-btn mui-btn-outlined btn-xs" id="btn-db-clear-query" type="button" title="Clear Query Text">
+                    <span class="material-icons" style="font-size: 14px;">clear</span>
+                    <span>Clear</span>
+                  </button>
+                  <button class="mui-btn mui-btn-run btn-xs" id="btn-db-execute-query" type="button" title="Execute Query (Ctrl+Enter)">
+                    <span class="material-icons" style="font-size: 14px;">play_arrow</span>
+                    <span>Run Query</span>
+                  </button>
+                </div>
+              </div>
+              <div class="db-query-body">
+                <div class="db-query-gutter" id="db-query-gutter">1</div>
+                <textarea class="db-query-textarea" id="db-query-textarea" spellcheck="false" placeholder="Write custom SQL query to execute on actual local database... (e.g., SELECT * FROM customers;)"></textarea>
+              </div>
+            </div>
+
+            <!-- Database Query Results Area -->
+            <div class="db-results-container">
+              
+              <!-- Query Stats Bar -->
+              <div class="db-results-header">
+                <div class="db-results-meta">
+                  <span class="badge-status-idle" id="db-query-status">IDLE</span>
+                  <span id="db-row-count">0 rows</span>
+                </div>
+
+                <div class="db-selected-table-container">
+                  <span class="db-selected-table-badge" id="db-selected-table-badge">
+                    <span class="material-icons" style="font-size: 14px;">table_chart</span>
+                    <span class="selected-table-label">Selected Table:</span>
+                    <strong class="selected-table-name" id="db-active-table-name">None</strong>
+                  </span>
+                </div>
+              </div>
+
+              <!-- View A: Interactive Data Grid Table with Inline Record Editing -->
+              <div class="db-data-grid-wrapper" id="db-grid-view">
+                <div class="db-query-empty-state" id="db-empty-state">
+                  <span class="material-icons" style="font-size: 32px; color: #94a3b8;">play_circle_outline</span>
+                  <p style="margin: 6px 0 0; font-size: 13px; color: #64748b; font-weight: 500;">No query executed yet.</p>
+                  <span style="font-size: 11.5px; color: #94a3b8;">Write a query above and click <strong>Run Query</strong> or press <strong>Ctrl+Enter</strong> to execute.</span>
+                </div>
+                <table class="db-table" id="db-data-table" style="display: none;">
+                  <thead id="db-table-head">
+                    <!-- Dynamic column headers with Actions -->
+                  </thead>
+                  <tbody id="db-table-body">
+                    <!-- Dynamic rows with Edit & Delete actions -->
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- View B: JSON / Document Viewer -->
+              <div class="db-json-view" id="db-json-view" style="display: none;">
+                <pre id="db-json-content" class="json-code-block"></pre>
+              </div>
+
+            </div>
+
+          </div>
+
+        </section>
+
+      </main>
+
+    </div>
+
+    <!-- App Bottom Copyright Footer as requested -->
+    <footer class="app-footer">
+      <div class="footer-copyright">
+        &copy; Copyright <span id="copyright-year">2026</span> Virendra Arekar - <a href="mailto:virendra.arekar@gmail.com" class="footer-email-link">virendra.arekar@gmail.com</a>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- Modal 1: Create New File in Spring Boot Project -->
+  <div class="mui-modal-backdrop" id="boot-new-file-modal" style="display: none;">
+    <div class="mui-modal-card">
+      <div class="modal-header">
+        <div class="modal-title">
+          <span class="material-icons" style="font-size: 18px; color: #059669;">note_add</span>
+          <span>Create New Spring Boot File</span>
+        </div>
+        <button class="icon-action-btn" id="btn-close-new-file-modal">
+          <span class="material-icons" style="font-size: 18px;">close</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="new-file-parent-dir">Target Directory</label>
+          <select id="new-file-parent-dir" class="form-select">
+            <option value="src/main/java/com/example/demo/controller">src/main/java/com/example/demo/controller</option>
+            <option value="src/main/java/com/example/demo/service">src/main/java/com/example/demo/service</option>
+            <option value="src/main/java/com/example/demo/repository">src/main/java/com/example/demo/repository</option>
+            <option value="src/main/java/com/example/demo/model">src/main/java/com/example/demo/model</option>
+            <option value="src/main/java/com/example/demo">src/main/java/com/example/demo (Root package)</option>
+            <option value="src/main/resources">src/main/resources</option>
+            <option value="">springboot_app (Root folder)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="new-file-name">File Name (with extension)</label>
+          <input type="text" id="new-file-name" class="form-input" placeholder="e.g. OrderController.java, schema.sql, SecurityConfig.java">
+        </div>
+        <div class="form-group">
+          <label for="new-file-template">Starter Template</label>
+          <select id="new-file-template" class="form-select">
+            <option value="controller">Spring REST Controller (@RestController)</option>
+            <option value="service">Spring Service (@Service)</option>
+            <option value="repository">Spring Data JPA Repository (@Repository)</option>
+            <option value="entity">JPA Entity Class (@Entity, @Table)</option>
+            <option value="properties">Spring Properties (application.properties)</option>
+            <option value="sql">SQL Schema Script (schema.sql)</option>
+            <option value="blank">Blank Empty File</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="mui-btn mui-btn-outlined" id="btn-cancel-new-file">Cancel</button>
+        <button class="mui-btn mui-btn-contained boot-theme" id="btn-submit-new-file">
+          <span class="material-icons" style="font-size: 16px;">add</span>
+          Create File
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 2: Create New Folder in Spring Boot Project -->
+  <div class="mui-modal-backdrop" id="boot-new-folder-modal" style="display: none;">
+    <div class="mui-modal-card">
+      <div class="modal-header">
+        <div class="modal-title">
+          <span class="material-icons" style="font-size: 18px; color: #ea580c;">create_new_folder</span>
+          <span>Create New Folder</span>
+        </div>
+        <button class="icon-action-btn" id="btn-close-new-folder-modal">
+          <span class="material-icons" style="font-size: 18px;">close</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="new-folder-parent-dir">Parent Directory</label>
+          <select id="new-folder-parent-dir" class="form-select">
+            <option value="src/main/java/com/example/demo">src/main/java/com/example/demo</option>
+            <option value="src/main/java">src/main/java</option>
+            <option value="src/main/resources">src/main/resources</option>
+            <option value="src/test/java/com/example/demo">src/test/java/com/example/demo</option>
+            <option value="">springboot_app (Root folder)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="new-folder-name">Folder Name</label>
+          <input type="text" id="new-folder-name" class="form-input" placeholder="e.g. dto, config, security, exception">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="mui-btn mui-btn-outlined" id="btn-cancel-new-folder">Cancel</button>
+        <button class="mui-btn mui-btn-contained boot-theme" id="btn-submit-new-folder">
+          <span class="material-icons" style="font-size: 16px;">create_new_folder</span>
+          Create Folder
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 3: Editing & Inserting Database Records -->
+  <div class="mui-modal-backdrop" id="db-record-modal" style="display: none;">
+    <div class="mui-modal-card">
+      <div class="modal-header">
+        <div class="modal-title">
+          <span class="material-icons" style="font-size: 18px; color: #059669;" id="modal-title-icon">edit</span>
+          <span id="modal-title-text">Edit Record</span>
+        </div>
+        <button class="icon-action-btn" id="btn-close-record-modal">
+          <span class="material-icons" style="font-size: 18px;">close</span>
+        </button>
+      </div>
+      <div class="modal-body" id="modal-fields-container">
+        <!-- Dynamically generated input fields per column -->
+      </div>
+      <div class="modal-footer">
+        <button class="mui-btn mui-btn-outlined" id="btn-cancel-record-modal">Cancel</button>
+        <button class="mui-btn mui-btn-contained boot-theme" id="btn-save-record-modal">
+          <span class="material-icons" style="font-size: 16px;">save</span>
+          Save Changes
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 4: IntelliJ IDEA Quick Code Generation (Alt+Insert) -->
+  <div class="mui-modal-backdrop" id="ij-generate-modal" style="display: none;">
+    <div class="mui-modal-card">
+      <div class="modal-header">
+        <div class="modal-title">
+          <span class="material-icons" style="font-size: 18px; color: #7c3aed;">auto_fix_high</span>
+          <span>IntelliJ IDEA Code Generator (Alt+Insert)</span>
+        </div>
+        <button class="icon-action-btn" id="btn-close-generate-modal">
+          <span class="material-icons" style="font-size: 18px;">close</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 12px; color: #64748b; margin-top: 0; margin-bottom: 12px;">Select an IntelliJ template snippet to inject into the active file at cursor:</p>
+        <div class="ij-gen-options-grid">
+          <button class="ij-gen-card" data-gen="get-mapping" type="button">
+            <div class="ij-gen-card-icon" style="background: #ecfdf5; color: #059669;">⚡</div>
+            <div class="ij-gen-card-content">
+              <strong>REST GET Endpoint</strong>
+              <span>@GetMapping with ResponseEntity.ok()</span>
+            </div>
+          </button>
+          <button class="ij-gen-card" data-gen="post-mapping" type="button">
+            <div class="ij-gen-card-icon" style="background: #eff6ff; color: #2563eb;">📥</div>
+            <div class="ij-gen-card-content">
+              <strong>REST POST Endpoint</strong>
+              <span>@PostMapping with @RequestBody payload</span>
+            </div>
+          </button>
+          <button class="ij-gen-card" data-gen="service-bean" type="button">
+            <div class="ij-gen-card-icon" style="background: #f0fdf4; color: #16a34a;">🍃</div>
+            <div class="ij-gen-card-content">
+              <strong>Spring Service Method</strong>
+              <span>Transactional business logic method</span>
+            </div>
+          </button>
+          <button class="ij-gen-card" data-gen="virtual-thread" type="button">
+            <div class="ij-gen-card-icon" style="background: #fff7ed; color: #ea580c;">🚀</div>
+            <div class="ij-gen-card-content">
+              <strong>Java 25 Virtual Thread</strong>
+              <span>Thread.ofVirtual().start() concurrency task</span>
+            </div>
+          </button>
+          <button class="ij-gen-card" data-gen="constructor-getters" type="button">
+            <div class="ij-gen-card-icon" style="background: #faf5ff; color: #7c3aed;">🧱</div>
+            <div class="ij-gen-card-content">
+              <strong>Constructor &amp; Accessors</strong>
+              <span>All-args constructor, getters and setters</span>
+            </div>
+          </button>
+          <button class="ij-gen-card" data-gen="logger" type="button">
+            <div class="ij-gen-card-icon" style="background: #f1f5f9; color: #475569;">📜</div>
+            <div class="ij-gen-card-content">
+              <strong>SLF4J Logger Instance</strong>
+              <span>LoggerFactory.getLogger(DemoApplication.class)</span>
+            </div>
+          </button>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="mui-btn mui-btn-outlined" id="btn-cancel-generate-modal">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 5: Java 25 Scratchpad Starter Templates -->
+  <div class="mui-modal-backdrop" id="java-scratchpad-modal" style="display: none;">
+    <div class="mui-modal-card" style="max-width: 720px;">
+      <div class="modal-header">
+        <div class="modal-title">
+          <span class="material-icons" style="font-size: 18px; color: #ea580c;">coffee</span>
+          <span>Java 25 (LTS) Scratchpad Starter Templates</span>
+        </div>
+        <button class="icon-action-btn" id="btn-close-scratch-modal">
+          <span class="material-icons" style="font-size: 18px;">close</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 12px; color: #64748b; margin-top: 0; margin-bottom: 12px;">Select a modern Java 25 template to load into the scratchpad editor:</p>
+        <div class="ij-gen-options-grid">
+          <button class="ij-gen-card" data-template="vthreads" type="button">
+            <div class="ij-gen-card-icon" style="background: #fff7ed; color: #ea580c;">🚀</div>
+            <div class="ij-gen-card-content">
+              <strong>Virtual Threads Benchmark</strong>
+              <span>Structured Concurrency &amp; Thread.ofVirtual() 10,000 threads</span>
+            </div>
+          </button>
+          <button class="ij-gen-card" data-template="pattern-matching" type="button">
+            <div class="ij-gen-card-icon" style="background: #eff6ff; color: #2563eb;">🛡️</div>
+            <div class="ij-gen-card-content">
+              <strong>Pattern Matching &amp; Records</strong>
+              <span>Record patterns, sealed hierarchy &amp; exhaustive switch</span>
+            </div>
+          </button>
+          <button class="ij-gen-card" data-template="gatherers" type="button">
+            <div class="ij-gen-card-icon" style="background: #ecfdf5; color: #059669;">🌊</div>
+            <div class="ij-gen-card-content">
+              <strong>Stream Gatherers &amp; Stats</strong>
+              <span>Functional stream operations &amp; IntSummaryStatistics pipeline</span>
+            </div>
+          </button>
+          <button class="ij-gen-card" data-template="http-client" type="button">
+            <div class="ij-gen-card-icon" style="background: #f0fdf4; color: #16a34a;">🌐</div>
+            <div class="ij-gen-card-content">
+              <strong>Async HTTP Client</strong>
+              <span>Modern java.net.http.HttpClient with HTTP/2 &amp; timeouts</span>
+            </div>
+          </button>
+          <button class="ij-gen-card" data-template="benchmark" type="button">
+            <div class="ij-gen-card-icon" style="background: #faf5ff; color: #7c3aed;">🧮</div>
+            <div class="ij-gen-card-content">
+              <strong>Algorithmic Complexity Benchmark</strong>
+              <span>Dual-Pivot Quicksort with 500k elements &amp; execution timer</span>
+            </div>
+          </button>
+          <button class="ij-gen-card" data-template="unnamed-class" type="button">
+            <div class="ij-gen-card-icon" style="background: #fef3c7; color: #d97706;">⚡</div>
+            <div class="ij-gen-card-content">
+              <strong>Instance Main / Unnamed Class</strong>
+              <span>Minimal Java 25 script entrypoint: void main()</span>
+            </div>
+          </button>
+          <button class="ij-gen-card" data-template="classic-main" type="button">
+            <div class="ij-gen-card-icon" style="background: #f1f5f9; color: #475569;">📄</div>
+            <div class="ij-gen-card-content">
+              <strong>Classic Main Application</strong>
+              <span>Standard public class Main with runtime diagnostics</span>
+            </div>
+          </button>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="mui-btn mui-btn-outlined" id="btn-cancel-scratch-modal">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Floating Toast Notifications Layer -->
+  <div class="toast-container" id="toast-container" aria-live="polite"></div>
+
+  <!-- Main Standalone Application Engine Script -->
+  <script src="script.js"></script>
+</body>
+</html>
