@@ -3,6 +3,8 @@
 
 A high-performance backend runner, project directory explorer, and multi-database inspection studio designed for modern **Java 25 (Oracle LTS)** and **Spring Boot 4.0** developers.
 
+![Java 25 & Spring Boot 4 Studio Workbench](screenshot.png)
+
 ---
 
 ## 🌟 Key Capabilities & Upgrades
@@ -105,6 +107,7 @@ jdk/
 ├── index.html                # Main Workbench UI (Tree Explorer, VS Code Editor, DB Inspector)
 ├── package.json              # Standalone manifest
 ├── README.md                 # Complete documentation
+├── screenshot.png            # Studio Workbench preview screenshot
 ├── script.js                 # Interactive engine, file tree explorer, living canvas, VS Code highlighter
 ├── server.js                 # Node.js backend: REST APIs for tree, files, compilation, and DB CRUD
 ├── style.css                 # Light Spring Boot theme, colorful syntax highlighting & micro-interactions
