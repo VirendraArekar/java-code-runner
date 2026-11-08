@@ -1,0 +1,27 @@
+{
+  "name": "java25-springboot4-runner",
+  "version": "1.0.0",
+  "description": "Interactive Java 25 LTS & Spring Boot 4 Runner with Multi-Database Inspector (MySQL, PostgreSQL, MSSQL, MongoDB)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "author": "Virendra Arekar <virendra.arekar@gmail.com>",
+  "license": "MIT",
+  "keywords": [
+    "java25",
+    "springboot4",
+    "virtual-threads",
+    "database-inspector",
+    "mysql",
+    "postgresql",
+    "mssql",
+    "mongodb",
+    "runner"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
+

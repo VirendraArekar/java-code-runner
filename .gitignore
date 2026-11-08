@@ -1,0 +1,36 @@
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+
+# Java & Maven Build Artifacts
+target/
+springboot_app/target/
+*.class
+*.jar
+*.war
+*.ear
+*.nar
+
+# SQLite Databases & Local Storage
+*.sqlite
+*.sqlite-journal
+*.sqlite3
+*.db
+db_connections.sqlite
+
+# System & OS Files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# IDE & Editor Specifics
+.idea/
+*.iml
+.classpath
+.project
+.settings/
