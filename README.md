@@ -80,10 +80,9 @@ A high-performance backend runner, project directory explorer, and multi-databas
 
 ## 🚀 Quickstart Guide
 
-Inside the `jdk/` directory, start the standalone server:
+Inside the project directory, start the standalone server:
 
 ```bash
-cd /Users/apple/Desktop/Practice/Javascript/jdk
 node server.js
 ```
 
